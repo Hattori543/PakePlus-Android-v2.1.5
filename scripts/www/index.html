@@ -1,11 +1,1854 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>赛尔号伤害计算器</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background: #f2f2f2;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      line-height: 1;
+    }
+.tip-yellow{
+  background:#fff3cd;
+  border:1px solid #ffeeba;
+  padding:8px 10px;
+  border-radius:8px;
+  text-align:center;
+
+  font-size:16px;
+  font-weight:800;
+  color:#d32f2f;
+}
+    .container {
+      max-width: 1080px;
+      background: white;
+      border-radius: 10px;
+      padding: 20px 30px 24px;
+      margin: auto;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 10px 0 10px;
+      color: #2c3e50;
+      font-size: 22px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px 30px;
+      align-items: stretch;
+    }
+    #calcBtn{
+      font-size:18px;
+    }
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .column-card {
+      border-radius: 10px;
+      padding: 16px 18px 18px;
+      box-sizing: border-box;
+      border: 1px solid #e1e5f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .column-card.boss {
+      background: #fff8f3;
+      border-color: #ffd9b8;
+    }
+
+    .column-card.self {
+      background: #f6f9ff;
+      border-color: #d4e0ff;
+      flex: 0.9;
+    }
+
+    .column-card.effects {
+      background: #f7f8fa;
+      border-color: #dde1ea;
+      margin-top: 8px;
+      padding: 10px 12px;
+    }
+
+    .column-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #34495e;
+      text-align: center;
+    }
+
+    .input-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .input-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 20px;
+      align-items: flex-start;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      line-height: 0.9;
+    }
+
+    label {
+      margin-bottom: 4px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    small {
+      color: #888;
+      font-size: 12px;
+      display: block;
+      margin-top: 4px;
+      text-align: left;
+    }
+
+    .checkbox-inline-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .combo-row {
+      flex-wrap: nowrap;
+    }
+
+    .effects-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-top: 6px;
+    }
+
+    .effects-checkboxes label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      white-space: nowrap;
+      padding: 2px 3px;
+      cursor: pointer;
+    }
+
+    .effects-checkboxes input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      transform: scale(1.1);
+    }
+
+    .dropdown-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .dropdown-display {
+      min-width: 90px;
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 13px;
+      background-color: #fff;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 999;
+      display: none;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .dropdown-item {
+      padding: 6px 10px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown-wrapper.disabled .dropdown-display {
+      background-color: #f5f5f5;
+      color: #aaa;
+      cursor: default;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+    .reset-btn {
+      width: auto;
+      padding: 4px 10px;
+      font-size: 12px;
+      background-color: #e0e0e0;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .reset-btn:hover {
+      background-color: #d5d5d5;
+    }
+
+    .right-bottom-panel {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .results {
+      background: #fefefe;
+      border: 1px solid #ccc;
+      padding: 10px 12px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      min-height: 40px;
+    }
+
+    .highlight-danger {
+      color: #d32f2f;
+      font-weight: bold;
+    }
+
+    .highlight-safe {
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    .safe-hp-highlight {
+      font-size: 16px;
+      font-weight: bold;
+      color: #b71c1c;
+      margin-bottom: 6px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: #ffe6e6;
+    }
+
+    @media (max-width: 780px) {
+      .container {
+        padding: 16px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px 0;
+      }
+      .right-bottom-panel {
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>赛尔号伤害计算器</h1>
+
+  <div class="form-grid">
+
+    <div>
+      <div class="column-card boss">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div class="column-title" style="margin-bottom:0;">BOSS 打我方</div>
+          <button type="button" class="reset-btn" id="resetBossModule">重置本栏</button>
+        </div>
+
+        <div class="input-column">
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>BOSS 进攻种族值：</label>
+              <input type="number" id="b2m_race" min="0">
+              <small>只填该部分为“站场算裸伤”模式</small>
+            </div>
+            <div class="input-group">
+              <label>双攻倍数：</label>
+              <input type="number" id="b2m_atkMulti" min="0" step="0.1" value="6.5">
+              <small>地狱常用：前两关 6，后三关 6.5</small>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>BOSS 强化等级：</label>
+              <div class="dropdown-wrapper" id="b2m_atkEnhanceDropdown">
+                <div class="dropdown-display" id="b2m_atkEnhanceDisplay">0</div>
+                <div class="dropdown-menu" id="b2m_atkEnhanceMenu">
+                  <div class="dropdown-item" data-value="0">0</div>
+                  <div class="dropdown-item" data-value="1">+1</div>
+                  <div class="dropdown-item" data-value="2">+2</div>
+                  <div class="dropdown-item" data-value="3">+3</div>
+                  <div class="dropdown-item" data-value="4">+4</div>
+                  <div class="dropdown-item" data-value="5">+5</div>
+                  <div class="dropdown-item" data-value="6">+6</div>
+                </div>
+                <input type="hidden" id="b2m_enhanceLv" value="0">
+              </div>
+            </div>
+            <div class="input-group">
+              <label>技能威力：</label>
+              <input type="number" id="b2m_power" min="1" value="150">
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>克制系数：</label>
+              <input type="number" id="b2m_restraint" step="0.125" min="0" value="1">
+            </div>
+            <div class="input-group">
+              <label>本系加成：</label>
+              <div class="checkbox-inline-row">
+                <input type="checkbox" id="b2m_sameTypeCheck" checked>
+                <label for="b2m_sameTypeCheck" style="font-weight:normal;margin-bottom:0;">本系 1.5 倍</label>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="input-group">
+            <label style="font-weight:normal;display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" id="b2m_lockCrit">
+              BOSS 拥有“锁定”：必定暴击
+            </label>
+          </div>
+
+          <hr style="border:none;border-top:1px dashed #e0e0e0;margin:4px 0 8px;">
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>我方防御：</label>
+              <input type="number" id="b2m_defense" min="1">
+            </div>
+            <div class="input-group">
+              <label>我方防御强化等级：</label>
+              <div class="dropdown-wrapper" id="b2m_defStageDropdown">
+                <div class="dropdown-display" id="b2m_defStageDisplay">0</div>
+                <div class="dropdown-menu" id="b2m_defStageMenu">
+                  <div class="dropdown-item" data-value="0">0</div>
+                  <div class="dropdown-item" data-value="1">+1</div>
+                  <div class="dropdown-item" data-value="-1">-1</div>
+                  <div class="dropdown-item" data-value="2">+2</div>
+                  <div class="dropdown-item" data-value="-2">-2</div>
+                  <div class="dropdown-item" data-value="3">+3</div>
+                  <div class="dropdown-item" data-value="-3">-3</div>
+                  <div class="dropdown-item" data-value="4">+4</div>
+                  <div class="dropdown-item" data-value="-4">-4</div>
+                  <div class="dropdown-item" data-value="5">+5</div>
+                  <div class="dropdown-item" data-value="-5">-5</div>
+                  <div class="dropdown-item" data-value="6">+6</div>
+                  <div class="dropdown-item" data-value="-6">-6</div>
+                </div>
+                <input type="hidden" id="b2m_defStageVal" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>暴击抗性：</label>
+              <input type="number" id="b2m_critResist" min="0" max="0.35" step="0.01" value="0.35">
+              <small>范围 0 ~ 0.35</small>
+            </div>
+            <div class="input-group">
+              <label>固伤抗性：</label>
+              <input type="number" id="b2m_fixedResist" min="0" max="0.35" step="0.01" value="0.35">
+              <small>范围0 ~ 0.35</small>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>原始固伤 / 吸血：</label>
+              <input type="number" id="b2m_fixedDmg" min="0" value="500">
+            </div>
+            <div class="input-group">
+              <label>坚硬：</label>
+              <div class="checkbox-inline-row">
+                <input type="checkbox" id="b2m_jianyingCheckbox">
+                <label for="b2m_jianyingCheckbox" style="font-weight:normal;margin-bottom:0;">坚硬（10%）</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>非通用减伤(乘算)：</label>
+              <input type="number" id="b2m_otherResist" step="0.01" value="0">
+              <small>如王哈填0.8，闪皮填0.6</small>
+            </div>
+            <div class="input-group">
+              <label>通用减伤(加算)：</label>
+              <input type="number" id="b2m_generalResist" step="0.01" value="0">
+              <small>如四九圣尊0.49、幻境界皇0.65、星礼0.15等</small>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>护盾：</label>
+              <input type="number" id="b2m_shieldVal" min="0" value="0">
+              <small>漆黑300盾，元神盾。站场时每轮刷新的盾才能填</small>
+            </div>
+            <div class="input-group">
+              <label>护罩：</label>
+              <input type="number" id="b2m_barrierVal" min="0" value="0">
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>我方体力值：</label>
+            <input type="number" id="b2m_myHP" min="1">
+            <small>用于“后手强攻模式”判断是否能稳定吃一次 BOSS 攻击</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="column-card effects">
+        <div class="column-title" style="font-size:15px;margin-bottom:6px;">药剂 / 套装 / BUFF</div>
+        <div class="input-column">
+          <div class="input-group">
+            <label>火焰 / 珠子：</label>
+            <div class="effects-checkboxes">
+              <label><input type="checkbox" id="b2m_goldFireCheckbox">加强金火</label>
+              <label><input type="checkbox" id="b2m_pearlCheckbox">减伤珠</label>
+              <label><input type="checkbox" id="b2m_immortalCheckbox">不灭珠</label>
+              <label><input type="checkbox" id="m2b_purpleFire">紫火</label>
+              <label><input type="checkbox" id="b2m_smallGoldFireCheckbox">小金火(非vip)</label>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>套装：</label>
+            <div class="effects-checkboxes">
+              <label><input type="checkbox" class="m2b-suit" value="漆黑" >漆黑</label>
+              <label><input type="checkbox" class="m2b-suit" value="银翼">银翼</label>
+              <label><input type="checkbox" class="m2b-suit" value="银翼先手">银翼先手</label>
+              <label><input type="checkbox" class="m2b-suit" value="耀世">耀世</label>
+              <label><input type="checkbox" class="m2b-suit" value="天人套">天人套</label>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>其他效果：</label>
+            <div class="effects-checkboxes">
+              <label><input type="checkbox" id="m2b_crit" >暴击</label>
+              <label><input type="checkbox" id="m2b_diduoStage">蒂朵舞台</label>
+              <label><input type="checkbox" id="m2b_star50">星光 buff</label>
+              <label><input type="checkbox" id="m2b_star100">星光 buff 带真伤</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <div class="column-card self">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div class="column-title" style="margin-bottom:0;">我方打 BOSS</div>
+          <button type="button" class="reset-btn" id="resetSelfModule">重置本栏</button>
+        </div>
+
+        <div class="input-column">
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>我方面板攻击：</label>
+              <input type="number" id="m2b_atkPanel" min="0">
+              <small>只填该部分为“先手强攻”模式</small>
+            </div>
+            <div class="input-group">
+              <label>技能威力：</label>
+              <input type="number" id="m2b_skillPower" min="0" value="150">
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label style="font-weight: normal; display:flex; align-items:center; gap:6px;">
+                <input type="checkbox" id="m2b_isVariablePower">
+                是否变威力技能
+                <a href="https://www.bilibili.com/opus/956487657760751619?from=search&spm_id_from=333.337.0.0"
+                   target="_blank"
+                   style="font-weight:normal; font-size:12px; margin-left:6px;">
+                  参考专栏
+                </a>
+              </label>
+              <small>勾选：禁用部分增伤且清空 BOSS 强化</small>
+            </div>
+            <div class="input-group">
+              <label style="font-weight: normal; display:flex; align-items:center; gap:6px;">
+                <input type="checkbox" id="m2b_sameTypeCheck" checked>
+                本系加成（1.5 倍）
+              </label>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>攻击强化等级：</label>
+              <div class="dropdown-wrapper" id="m2b_atkStageDropdown">
+                <div class="dropdown-display" id="m2b_atkStageDisplay">0</div>
+                <div class="dropdown-menu" id="m2b_atkStageMenu">
+                  <div class="dropdown-item" data-value="0">0</div>
+                  <div class="dropdown-item" data-value="1">+1</div>
+                  <div class="dropdown-item" data-value="-1">-1</div>
+                  <div class="dropdown-item" data-value="2">+2</div>
+                  <div class="dropdown-item" data-value="-2">-2</div>
+                  <div class="dropdown-item" data-value="3">+3</div>
+                  <div class="dropdown-item" data-value="-3">-3</div>
+                  <div class="dropdown-item" data-value="4">+4</div>
+                  <div class="dropdown-item" data-value="-4">-4</div>
+                  <div class="dropdown-item" data-value="5">+5</div>
+                  <div class="dropdown-item" data-value="-5">-5</div>
+                  <div class="dropdown-item" data-value="6">+6</div>
+                  <div class="dropdown-item" data-value="-6">-6</div>
+                </div>
+                <input type="hidden" id="m2b_atkStageVal" value="0">
+              </div>
+              <small>范围 -6 ~ 6</small>
+            </div>
+            <div class="input-group">
+              <label>克制系数：</label>
+              <input type="number" id="m2b_restraint" step="0.1" min="0" value="1">
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>精神强袭：</label>
+              <div class="dropdown-wrapper" id="m2b_traitDropdown">
+                <div class="dropdown-display" id="m2b_traitDisplay">无</div>
+                <div class="dropdown-menu" id="m2b_traitMenu">
+                  <div class="dropdown-item" data-value="0">无</div>
+                  <div class="dropdown-item" data-value="0.08">五星：8%</div>
+                  <div class="dropdown-item" data-value="0.07">四星：7%</div>
+                  <div class="dropdown-item" data-value="0.06">三星：6%</div>
+                  <div class="dropdown-item" data-value="0.05">二星：5%</div>
+                  <div class="dropdown-item" data-value="0.04">一星：4%</div>
+                  <div class="dropdown-item" data-value="0.03">零星：3%</div>
+                </div>
+                <input type="hidden" id="m2b_traitBonus" value="0">
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>单属性威力特性：</label>
+              <div class="dropdown-wrapper" id="m2b_attrTraitDropdown">
+                <div class="dropdown-display" id="m2b_attrTraitDisplay">无</div>
+                <div class="dropdown-menu" id="m2b_attrTraitMenu">
+                  <div class="dropdown-item" data-value="0">无</div>
+                  <div class="dropdown-item" data-value="0.1">五星：10%</div>
+                  <div class="dropdown-item" data-value="0.09">四星：9%</div>
+                  <div class="dropdown-item" data-value="0.08">三星：8%</div>
+                  <div class="dropdown-item" data-value="0.07">二星：7%</div>
+                  <div class="dropdown-item" data-value="0.06">一星：6%</div>
+                  <div class="dropdown-item" data-value="0.05">零星：5%</div>
+                </div>
+                <input type="hidden" id="m2b_attrTraitBonus" value="0">
+              </div>
+              <small>如魔幻、叶绿、流水、蓄电等</small>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>威力宝石加成：</label>
+              <div class="dropdown-wrapper" id="m2b_gemDropdown">
+                <div class="dropdown-display" id="m2b_gemDisplay">无</div>
+                <div class="dropdown-menu" id="m2b_gemMenu">
+                  <div class="dropdown-item" data-value="0">无</div>
+                  <div class="dropdown-item" data-value="17">Lv6：17</div>
+                  <div class="dropdown-item" data-value="14">Lv5：14</div>
+                  <div class="dropdown-item" data-value="10">Lv4：10</div>
+                  <div class="dropdown-item" data-value="7">Lv3：7</div>
+                  <div class="dropdown-item" data-value="4">Lv2：4</div>
+                  <div class="dropdown-item" data-value="1">Lv1：1</div>
+                  <div class="dropdown-item" data-value="20">Lv7：20</div>
+                  <div class="dropdown-item" data-value="24">Lv8：24</div>
+                  <div class="dropdown-item" data-value="27">Lv9：27</div>
+                  <div class="dropdown-item" data-value="30">Lv10：30</div>
+                </div>
+                <input type="hidden" id="m2b_gemBonus" value="0">
+              </div>
+            </div>
+            <div class="input-group">
+              <label>火潘层数：</label>
+              <div class="dropdown-wrapper" id="m2b_panDropdown">
+                <div class="dropdown-display" id="m2b_panDisplay">0</div>
+                <div class="dropdown-menu" id="m2b_panMenu">
+                  <div class="dropdown-item" data-value="0">0</div>
+                  <div class="dropdown-item" data-value="1">1</div>
+                  <div class="dropdown-item" data-value="2">2</div>
+                  <div class="dropdown-item" data-value="3">3</div>
+                </div>
+                <input type="hidden" id="m2b_panLayers" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>加法增伤：</label>
+              <input type="number" id="m2b_addBonus" step="0.01" value="0">
+            </div>
+            <div class="input-group">
+              <label>乘法增伤：</label>
+              <input type="number" id="m2b_skillMulti" min="0" value="1">
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>附加粉伤类型：</label>
+              <div class="dropdown-wrapper" id="m2b_fixedTypeDropdown">
+                <div class="dropdown-display" id="m2b_fixedTypeDisplay">无</div>
+                <div class="dropdown-menu" id="m2b_fixedTypeMenu">
+                  <div class="dropdown-item" data-value="none">无</div>
+                  <div class="dropdown-item" data-value="value">固定粉伤</div>
+                  <div class="dropdown-item" data-value="ratio">按红伤倍数</div>
+                </div>
+                <input type="hidden" id="m2b_fixedType" value="none">
+              </div>
+            </div>
+            <div class="input-group">
+              <label>附加粉伤数值：</label>
+              <input type="number" id="m2b_fixedValue" step="0.01" value="0" disabled>
+              <small>固定：填伤害；倍数：填如 0.5</small>
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group" style="grid-column: 1 / span 2;">
+              <label>连击技能：</label>
+              <div class="checkbox-inline-row combo-row" style="gap:6px;">
+                <input type="checkbox" id="m2b_isCombo">
+                <label for="m2b_isCombo" style="font-weight:normal;margin-bottom:0;">是否连击</label>
+                <input type="number" id="m2b_comboMin" min="1" value="1" style="width:60px;" disabled>
+                <span>~</span>
+                <input type="number" id="m2b_comboMax" min="1" value="1" style="width:60px;" disabled>
+              </div>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px dashed #d0d0d0;margin:8px 0 8px;">
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>BOSS 防御/特防种族值：</label>
+              <input type="number" id="m2b_bossDefRace" min="0">
+            </div>
+            <div class="input-group">
+              <label>BOSS 防御/特防强化等级：</label>
+              <input type="number" id="m2b_bossBuffLv" min="0" max="6" value="0">
+            </div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="input-group">
+              <label>双防倍数：</label>
+              <input type="number" id="m2b_defMulti" min="0" step="0.1" value="1.5">
+              <small>地狱因子通常前两关1.2，后三关1.5</small>
+            </div>
+            <div class="input-group">
+              <label>BOSS 生命值：</label>
+              <input type="number" id="m2b_bossHP" min="0">
+              <small>用于判断击杀概率</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-bottom-panel">
+        <div class="tip-yellow">⬅记得勾选左侧套装</div>
+          <button id="calcBtn">计算 + 结论</button>
+        <div id="resultsBox" class="results"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function getVal(id) {
+    const el = document.getElementById(id);
+    return el ? (parseFloat(el.value) || 0) : 0;
+  }
+  function getChecked(id) {
+    const el = document.getElementById(id);
+    return el ? el.checked : false;
+  }
+
+  function initDropdown(wrapperId, displayId, menuId, hiddenId) {
+    const wrapper = document.getElementById(wrapperId);
+    const display = document.getElementById(displayId);
+    const menu = document.getElementById(menuId);
+    const hidden = document.getElementById(hiddenId);
+    if (!wrapper || !display || !menu || !hidden) return;
+
+    display.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (wrapper.classList.contains('disabled')) return;
+      const isShown = menu.style.display === 'block';
+      document.querySelectorAll('.dropdown-menu').forEach(el => el.style.display = 'none');
+      menu.style.display = isShown ? 'none' : 'block';
+    });
+
+    menu.addEventListener('click', function (e) {
+      if (wrapper.classList.contains('disabled')) return;
+      const item = e.target.closest('.dropdown-item');
+      if (!item) return;
+      const value = item.getAttribute('data-value');
+      const text = item.textContent;
+      hidden.value = value;
+      display.textContent = text;
+      menu.style.display = 'none';
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!wrapper.contains(e.target)) {
+        menu.style.display = 'none';
+      }
+    });
+  }
+
+
+  initDropdown('b2m_atkEnhanceDropdown','b2m_atkEnhanceDisplay','b2m_atkEnhanceMenu','b2m_enhanceLv');
+  initDropdown('b2m_defStageDropdown','b2m_defStageDisplay','b2m_defStageMenu','b2m_defStageVal');
+
+  (function initGoldFirePurpleExclusive() {
+    const big = document.getElementById('b2m_goldFireCheckbox');
+    const small = document.getElementById('b2m_smallGoldFireCheckbox');
+    const purple = document.getElementById('m2b_purpleFire');
+    if (!big || !small || !purple) return;
+
+    big.addEventListener('change', function () {
+      if (this.checked) {
+        small.checked = false;
+        purple.checked = false;
+      }
+    });
+
+    small.addEventListener('change', function () {
+      if (this.checked) {
+        big.checked = false;
+        purple.checked = false;
+      }
+    });
+
+    purple.addEventListener('change', function () {
+      if (this.checked) {
+        big.checked = false;
+        small.checked = false;
+      }
+    });
+  })();
+
+  initDropdown('m2b_atkStageDropdown','m2b_atkStageDisplay','m2b_atkStageMenu','m2b_atkStageVal');
+  initDropdown('m2b_gemDropdown','m2b_gemDisplay','m2b_gemMenu','m2b_gemBonus');
+  initDropdown('m2b_traitDropdown','m2b_traitDisplay','m2b_traitMenu','m2b_traitBonus');
+  initDropdown('m2b_attrTraitDropdown','m2b_attrTraitDisplay','m2b_attrTraitMenu','m2b_attrTraitBonus');
+  initDropdown('m2b_panDropdown','m2b_panDisplay','m2b_panMenu','m2b_panLayers');
+  initDropdown('m2b_fixedTypeDropdown','m2b_fixedTypeDisplay','m2b_fixedTypeMenu','m2b_fixedType');
+
+
+  (function initFixedTypeExtra() {
+    const hidden = document.getElementById('m2b_fixedType');
+    const input = document.getElementById('m2b_fixedValue');
+    const menu = document.getElementById('m2b_fixedTypeMenu');
+    if (!hidden || !input || !menu) return;
+    function sync() {
+      const val = hidden.value;
+      input.disabled = (val === 'none');
+      if (val === 'none') input.value = 0;
+    }
+    menu.addEventListener('click', function () {
+      setTimeout(sync, 0);
+    });
+    sync();
+  })();
+
+
+  (function initTraitAndJianyingExclusive() {
+    const traitHidden = document.getElementById('m2b_traitBonus');
+    const traitDisp = document.getElementById('m2b_traitDisplay');
+    const attrHidden = document.getElementById('m2b_attrTraitBonus');
+    const attrDisp = document.getElementById('m2b_attrTraitDisplay');
+    const traitMenu = document.getElementById('m2b_traitMenu');
+    const attrMenu = document.getElementById('m2b_attrTraitMenu');
+    const jianyingCb = document.getElementById('b2m_jianyingCheckbox');
+
+    function clearTraits() {
+      if (traitHidden) {
+        traitHidden.value = '0';
+        if (traitDisp) traitDisp.textContent = '无';
+      }
+      if (attrHidden) {
+        attrHidden.value = '0';
+        if (attrDisp) attrDisp.textContent = '无';
+      }
+    }
+
+    function clearJianying() {
+      if (jianyingCb) jianyingCb.checked = false;
+    }
+
+    if (traitMenu) {
+      traitMenu.addEventListener('click', function (e) {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+        const v = parseFloat(item.getAttribute('data-value')) || 0;
+        if (v > 0) {
+          if (attrHidden) {
+            attrHidden.value = '0';
+            if (attrDisp) attrDisp.textContent = '无';
+          }
+          clearJianying();
+        }
+      });
+    }
+
+    if (attrMenu) {
+      attrMenu.addEventListener('click', function (e) {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+        const v = parseFloat(item.getAttribute('data-value')) || 0;
+        if (v > 0) {
+          if (traitHidden) {
+            traitHidden.value = '0';
+            if (traitDisp) traitDisp.textContent = '无';
+          }
+          clearJianying();
+        }
+      });
+    }
+
+    if (jianyingCb) {
+      jianyingCb.addEventListener('change', function () {
+        if (this.checked) {
+          clearTraits();
+        }
+      });
+    }
+  })();
+
+
+  (function initSuitExclusive() {
+    const suits = document.querySelectorAll('.m2b-suit');
+    suits.forEach(cb => {
+      cb.addEventListener('change', function () {
+        if (this.checked) {
+          suits.forEach(other => {
+            if (other !== this) other.checked = false;
+          });
+        }
+      });
+    });
+  })();
+
+
+  (function initStarExclusive() {
+    const star50 = document.getElementById('m2b_star50');
+    const star100 = document.getElementById('m2b_star100');
+    if (!star50 || !star100) return;
+    star50.addEventListener('change', function () {
+      if (this.checked) star100.checked = false;
+    });
+    star100.addEventListener('change', function () {
+      if (this.checked) star50.checked = false;
+    });
+  })();
+
+  (function initComboToggle() {
+    const cb = document.getElementById('m2b_isCombo');
+    const minI = document.getElementById('m2b_comboMin');
+    const maxI = document.getElementById('m2b_comboMax');
+    if (!cb || !minI || !maxI) return;
+    function update() {
+      const en = cb.checked;
+      minI.disabled = !en;
+      maxI.disabled = !en;
+    }
+    cb.addEventListener('change', update);
+    update();
+  })();
+
+
+  (function initVariablePowerToggle() {
+    const varCb = document.getElementById('m2b_isVariablePower');
+    const gemWrapper = document.getElementById('m2b_gemDropdown');
+    const gemHidden = document.getElementById('m2b_gemBonus');
+    const gemDisplay = document.getElementById('m2b_gemDisplay');
+
+    const attrWrapper = document.getElementById('m2b_attrTraitDropdown');
+    const attrHidden = document.getElementById('m2b_attrTraitBonus');
+    const attrDisplay = document.getElementById('m2b_attrTraitDisplay');
+
+    const purpleCb = document.getElementById('m2b_purpleFire');
+    const bossBuffInput = document.getElementById('m2b_bossBuffLv');
+
+    function update() {
+      if (!varCb) return;
+      const isVar = varCb.checked;
+
+      if (gemWrapper && gemHidden && gemDisplay) {
+        if (isVar) {
+          gemWrapper.classList.add('disabled');
+          gemHidden.value = '0';
+          gemDisplay.textContent = '无';
+        } else {
+          gemWrapper.classList.remove('disabled');
+        }
+      }
+
+      if (attrWrapper && attrHidden && attrDisplay) {
+        if (isVar) {
+          attrWrapper.classList.add('disabled');
+          attrHidden.value = '0';
+          attrDisplay.textContent = '无';
+        } else {
+          attrWrapper.classList.remove('disabled');
+        }
+      }
+
+      if (purpleCb) {
+        if (isVar) {
+          purpleCb.checked = false;
+          purpleCb.disabled = true;
+        } else {
+          purpleCb.disabled = false;
+        }
+      }
+
+      if (bossBuffInput) {
+        if (isVar) {
+          bossBuffInput.value = '0';
+          bossBuffInput.disabled = true;
+        } else {
+          bossBuffInput.disabled = false;
+        }
+      }
+    }
+
+    if (varCb) {
+      varCb.addEventListener('change', update);
+      update();
+    }
+  })();
+
+
+  function syncSelfDynamicUI() {
+
+    const fixedTypeHidden = document.getElementById('m2b_fixedType');
+    const fixedInput = document.getElementById('m2b_fixedValue');
+    if (fixedTypeHidden && fixedInput) {
+      const val = fixedTypeHidden.value;
+      fixedInput.disabled = (val === 'none');
+      if (val === 'none') fixedInput.value = 0;
+    }
+
+  
+    const cbCombo = document.getElementById('m2b_isCombo');
+    const minI = document.getElementById('m2b_comboMin');
+    const maxI = document.getElementById('m2b_comboMax');
+    if (cbCombo && minI && maxI) {
+      const en = cbCombo.checked;
+      minI.disabled = !en;
+      maxI.disabled = !en;
+    }
+
+    const varCb = document.getElementById('m2b_isVariablePower');
+    const gemWrapper = document.getElementById('m2b_gemDropdown');
+    const gemHidden = document.getElementById('m2b_gemBonus');
+    const gemDisplay = document.getElementById('m2b_gemDisplay');
+
+    const attrWrapper = document.getElementById('m2b_attrTraitDropdown');
+    const attrHidden = document.getElementById('m2b_attrTraitBonus');
+    const attrDisplay = document.getElementById('m2b_attrTraitDisplay');
+
+    const purpleCb = document.getElementById('m2b_purpleFire');
+    const bossBuffInput = document.getElementById('m2b_bossBuffLv');
+
+    if (varCb) {
+      const isVar = varCb.checked;
+
+      if (gemWrapper && gemHidden && gemDisplay) {
+        if (isVar) {
+          gemWrapper.classList.add('disabled');
+          gemHidden.value = '0';
+          gemDisplay.textContent = '无';
+        } else {
+          gemWrapper.classList.remove('disabled');
+        }
+      }
+
+      if (attrWrapper && attrHidden && attrDisplay) {
+        if (isVar) {
+          attrWrapper.classList.add('disabled');
+          attrHidden.value = '0';
+          attrDisplay.textContent = '无';
+        } else {
+          attrWrapper.classList.remove('disabled');
+        }
+      }
+
+      if (purpleCb) {
+        if (isVar) {
+          purpleCb.checked = false;
+          purpleCb.disabled = true;
+        } else {
+          purpleCb.disabled = false;
+        }
+      }
+
+      if (bossBuffInput) {
+        if (isVar) {
+          bossBuffInput.value = '0';
+          bossBuffInput.disabled = true;
+        } else {
+          bossBuffInput.disabled = false;
+        }
+      }
+    }
+  }
+
+  function getCurrentSuitValue() {
+    const suitChecked = document.querySelector('.m2b-suit:checked');
+    return suitChecked ? suitChecked.value : null;
+  }
+
+  /* BOSS ➜ 我方：计算不暴击 / 暴击 下的红伤/粉伤/总伤（已经包含护盾护罩） */
+  function calcBossToMeDamageBoth() {
+    const raceStr = document.getElementById('b2m_race').value.trim();
+    if (raceStr === '' || isNaN(parseFloat(raceStr)) || parseFloat(raceStr) <= 0) {
+      alert('【左侧】请输入有效的 BOSS 进攻种族值（> 0）');
+      return { ok: false };
+    }
+    const race = parseFloat(raceStr);
+
+    const atkMulti = getVal('b2m_atkMulti');
+    const enhanceLv = getVal('b2m_enhanceLv');
+    const power = getVal('b2m_power');
+    const restraint = getVal('b2m_restraint') || 1;
+    const sameType = getChecked('b2m_sameTypeCheck') ? 1.5 : 1;
+
+    const defStr = document.getElementById('b2m_defense').value.trim();
+    if (defStr === '' || isNaN(parseFloat(defStr)) || parseFloat(defStr) <= 0) {
+      alert('【左侧】请输入有效的我方防御（> 0）');
+      return { ok: false };
+    }
+    const defense = parseFloat(defStr);
+
+    const critResist = getVal('b2m_critResist');
+    if (critResist < 0 || critResist > 0.35) {
+      alert('【左侧】暴击抗性仅允许 0 ~ 0.35 之间的数值');
+      return { ok: false };
+    }
+
+    const fixedResist = getVal('b2m_fixedResist');
+    if (fixedResist < 0 || fixedResist > 0.35) {
+      alert('【左侧】固伤抗性仅允许 0 ~ 0.35 之间的数值');
+      return { ok: false };
+    }
+
+    const generalResist = getVal('b2m_generalResist');
+    if (generalResist < 0 || generalResist >= 1) {
+      alert('【左侧】通用减伤系数建议在 0 ~ 1 之间');
+      return { ok: false };
+    }
+
+    const otherResist = getVal('b2m_otherResist');
+    const rawFixedDmg = getVal('b2m_fixedDmg');
+    const jianying = getChecked('b2m_jianyingCheckbox');
+    const shieldVal = getVal('b2m_shieldVal');
+    const barrierVal = getVal('b2m_barrierVal');
+    const defStage = parseInt(document.getElementById('b2m_defStageVal').value, 10) || 0;
+
+    const goldFire = getChecked('b2m_goldFireCheckbox') ? 0.25 : 0;
+    const smallGoldFire = getChecked('b2m_smallGoldFireCheckbox') ? 0.2 : 0;
+    const pearl = getChecked('b2m_pearlCheckbox') ? 0.25 : 0;
+    const immortal = getChecked('b2m_immortalCheckbox') ? 0.25 : 0;
+
+
+    const suitValue = getCurrentSuitValue();
+    let suitRedNoCrit = 0, suitRedCrit = 0;
+    if (suitValue === '耀世') {
+      suitRedNoCrit = 0.15;
+      suitRedCrit = 0.15;
+    } else if (suitValue === '天人套') {
+      suitRedNoCrit = 0.10;
+      suitRedCrit = 0.20;
+    }
+
+    const baseAtk = race * 2 + 29;
+    const panelAtk = Math.floor(baseAtk * atkMulti);
+    const actualAtk = Math.floor(panelAtk * (2 + enhanceLv) / 2);
+
+    let defFactor;
+    if (defStage >= 0) {
+      defFactor = (2 + defStage) / 2;
+    } else {
+      defFactor = 2 / (2 - defStage);
+    }
+    const realDef = Math.floor(defense * defFactor);
+
+    const baseDmg = 0.84 * actualAtk * power / realDef + 2;
+
+
+    const redRaw = baseDmg * restraint * sameType;
+
+
+    const multCommon =
+      (1 - goldFire - smallGoldFire) *
+      (1 - pearl) *
+      (1 - immortal) *
+      (1 - otherResist);
+
+    // 加算口径：通用减伤 + 套装红伤减伤
+    const multNoCrit = Math.max(0, 1 - generalResist - suitRedNoCrit);
+    const multCrit   = Math.max(0, 1 - generalResist - suitRedCrit);
+
+    // 不暴击红伤
+    let redNoCrit = redRaw * multCommon * multNoCrit;
+    // 暴击红伤：暴击倍率 + 暴击抗性
+    let redCrit = redRaw * multCommon * multCrit * 2 * (1 - critResist);
+
+    if (jianying) {
+      redNoCrit *= 0.9;
+      redCrit   *= 0.9;
+    }
+
+    // 护盾减红伤
+    let finalRedNoCrit = redNoCrit - shieldVal;
+    if (finalRedNoCrit < 0) finalRedNoCrit = 0;
+
+    let finalRedCrit = redCrit - shieldVal;
+    if (finalRedCrit < 0) finalRedCrit = 0;
+
+    // 固伤 + 护罩
+    let effFixed = rawFixedDmg * (1 - fixedResist);
+    let finalPink = effFixed - barrierVal;
+    if (finalPink < 0) finalPink = 0;
+
+    const redNoCritInt = Math.ceil(finalRedNoCrit);
+    const redCritInt = Math.ceil(finalRedCrit);
+    const pinkInt = Math.ceil(finalPink);
+
+    const totalNoCrit = redNoCritInt + pinkInt;
+    const totalCrit = redCritInt + pinkInt;
+
+    return {
+      ok: true,
+      baseDmg: baseDmg,
+      restraint: restraint,
+      sameType: sameType,
+      noCrit: {
+        red: redNoCritInt,
+        pink: pinkInt,
+        total: totalNoCrit
+      },
+      crit: {
+        red: redCritInt,
+        pink: pinkInt,
+        total: totalCrit
+      }
+    };
+  }
+
+  function buildMeToBossModel() {
+    const atkPanelStr = document.getElementById('m2b_atkPanel').value.trim();
+    const atkPanel = atkPanelStr === '' ? 0 : parseFloat(atkPanelStr);
+    if (atkPanel <= 0) {
+      alert('【右侧】请输入有效的我方面板攻击力');
+      return { ok: false };
+    }
+
+    const bossDefRaceInput = document.getElementById('m2b_bossDefRace').value.trim();
+    const bossDefRace = bossDefRaceInput === '' ? NaN : parseFloat(bossDefRaceInput);
+    if (isNaN(bossDefRace) || bossDefRace < 0) {
+      alert('【右侧】请输入有效的 BOSS 防御/特防种族值');
+      return { ok: false };
+    }
+
+    const atkStage = parseInt(document.getElementById('m2b_atkStageVal').value, 10) || 0;
+    const skillPower = getVal('m2b_skillPower');
+    const gemBonus = parseFloat(document.getElementById('m2b_gemBonus').value) || 0;
+    const skillMulti = getVal('m2b_skillMulti') || 1;
+    const restraint = getVal('m2b_restraint') || 1;
+    const sameType = getChecked('m2b_sameTypeCheck') ? 1.5 : 1;
+    const addBonus = getVal('m2b_addBonus');
+    const traitBonus = parseFloat(document.getElementById('m2b_traitBonus').value) || 0;
+    const attrTraitBonus = parseFloat(document.getElementById('m2b_attrTraitBonus').value) || 0;
+    const panLayers = parseFloat(document.getElementById('m2b_panLayers').value) || 0;
+
+    const fixedType = document.getElementById('m2b_fixedType').value;
+    const fixedRaw = document.getElementById('m2b_fixedValue').value.trim();
+    const fixedValue = fixedRaw === '' ? 0 : parseFloat(fixedRaw);
+
+    const bossBuffLv = getVal('m2b_bossBuffLv');
+    const defMulti = getVal('m2b_defMulti') || 1;
+    const bossHP_raw = document.getElementById('m2b_bossHP').value.trim();
+    const bossHP = bossHP_raw === '' ? NaN : parseFloat(bossHP_raw);
+
+    const isCombo = getChecked('m2b_isCombo');
+    let comboMin = 1, comboMax = 1;
+    if (isCombo) {
+      const cminStr = document.getElementById('m2b_comboMin').value.trim();
+      const cmaxStr = document.getElementById('m2b_comboMax').value.trim();
+      comboMin = Math.max(1, parseInt(cminStr) || 1);
+      comboMax = Math.max(1, parseInt(cmaxStr) || 1);
+      if (!cminStr || !cmaxStr || comboMin > comboMax) {
+        alert('【右侧】请输入有效的连击次数范围（最小值≥1，且最大值≥最小值）');
+        return { ok:false };
+      }
+    }
+
+    const crit = getChecked('m2b_crit');
+    const diduo = getChecked('m2b_diduoStage');
+    const purple = getChecked('m2b_purpleFire');
+    const star50 = getChecked('m2b_star50');
+    const star100 = getChecked('m2b_star100');
+
+    const isVarPower = getChecked('m2b_isVariablePower');
+    if (purple && isCombo) {
+      alert('【右侧】紫火对连击型技能无效！请取消连击或紫火效果。');
+      return { ok:false };
+    }
+
+    if (fixedType === 'value') {
+      if (fixedRaw === '') {
+        alert('【右侧】选择固定粉伤时，必须填写粉伤数值。');
+        return { ok:false };
+      }
+      const intVal = Number(fixedRaw);
+      if (!Number.isInteger(intVal) || intVal < 0) {
+        alert('【右侧】固定粉伤必须为大于等于 0 的整数。');
+        return { ok:false };
+      }
+    } else if (fixedType === 'ratio') {
+      if (fixedRaw === '') {
+        alert('【右侧】选择按红伤倍数时，必须填写倍数。');
+        return { ok:false };
+      }
+      if (fixedValue > 1) {
+        const ok2 = confirm(`粉伤为红伤的 ${fixedValue} 倍，确定吗？`);
+        if (!ok2) return { ok:false };
+      }
+    }
+
+    let suitBonus = 0;
+    const suitValue = getCurrentSuitValue();
+    if (suitValue) {
+      switch (suitValue) {
+        case '漆黑': suitBonus = 0.4; break;
+        case '银翼': suitBonus = 0.3; break;
+        case '银翼先手': suitBonus = 0.6; break;
+        case '耀世': suitBonus = 0.0; break;
+        case '天人套': suitBonus = 0.0; break; 
+        default: suitBonus = 0;
+      }
+    }
+
+    const diduoBonus = diduo ? 2.3 : 1;
+    const purpleBonus = purple ? 1.2 : 1;
+    const panBonus = 0.5 * panLayers;
+    const actualPower = (skillPower + gemBonus) * (1 + attrTraitBonus);
+
+    let selfAtkMulti;
+    if (atkStage >= 0) {
+      selfAtkMulti = (2 + atkStage) / 2;
+    } else {
+      selfAtkMulti = 2 / (2 - atkStage);
+    }
+    const actualAtk = Math.floor(atkPanel * selfAtkMulti);
+
+    const bossBaseDef = bossDefRace * 2 + 29;
+    const bossActualDef = Math.ceil(bossBaseDef * (2 + bossBuffLv) / 2);
+
+    const baseDmg = (42 * actualPower * actualAtk) /
+                    (bossActualDef * 50 * defMulti);
+
+    const nakedFactor = (baseDmg + 2) * sameType * restraint;
+
+    const bonusMulti =
+      (1 + suitBonus + panBonus + addBonus) *
+      diduoBonus *
+      (1 + traitBonus) *
+      purpleBonus;
+
+    let perHitBaseNoRandom = nakedFactor * bonusMulti * skillMulti;
+    if (crit) perHitBaseNoRandom *= 2;
+
+    const F = perHitBaseNoRandom / 255; // 每次攻击: 红伤 = F * r
+
+    const ratioPowder = (fixedType === 'ratio' && fixedValue !== 0) ? fixedValue : 0;
+    const fixedPowder = (fixedType === 'value' && fixedValue !== 0) ? Number(fixedRaw) : 0;
+    const baseMultiNoStar = 1 + ratioPowder;
+
+    let A, B;
+    if (star50) {
+      A = F * (baseMultiNoStar + 0.5);
+      B = fixedPowder;
+    } else if (star100) {
+      A = F * (baseMultiNoStar + 1.5);
+      B = fixedPowder;
+    } else {
+      A = F * baseMultiNoStar;
+      B = fixedPowder;
+    }
+
+    const nMin = isCombo ? comboMin : 1;
+    const nMax = isCombo ? comboMax : 1;
+
+    const sumR_min = 217 * nMin;
+    const sumR_max = 255 * nMax;
+
+    const redMin = F * sumR_min;
+    const redMax = F * sumR_max;
+
+    let finalMin, finalMax;
+    if (star50) {
+      finalMin = redMin * (baseMultiNoStar + 0.5) + fixedPowder;
+      finalMax = redMax * (baseMultiNoStar + 0.5) + fixedPowder;
+    } else if (star100) {
+      finalMin = redMin * (baseMultiNoStar + 0.5) + fixedPowder + redMin;
+      finalMax = redMax * (baseMultiNoStar + 0.5) + fixedPowder + redMax;
+    } else {
+      finalMin = redMin * baseMultiNoStar + fixedPowder;
+      finalMax = redMax * baseMultiNoStar + fixedPowder;
+    }
+
+    const minInt = Math.floor(finalMin);
+    const maxInt = Math.floor(finalMax);
+
+    return {
+      ok: true,
+      minDmg: minInt,
+      maxDmg: maxInt,
+      bossHP: bossHP,
+      A: A,
+      B: B,
+      nMin: nMin,
+      nMax: nMax
+    };
+  }
+
+  /* --------- 非连击时的精确枚举部分 --------- */
+
+  const sumDistCache = {}; // n -> {sum:count}
+
+  function getSumDist(n) {
+    if (sumDistCache[n]) return sumDistCache[n];
+    const minR = 217, maxR = 255;
+    let dist = {};
+    if (n === 1) {
+      for (let r = minR; r <= maxR; r++) dist[r] = 1;
+    } else {
+      const prev = getSumDist(n - 1);
+      dist = {};
+      for (const key in prev) {
+        const prevSum = parseInt(key);
+        const prevCount = prev[key];
+        for (let r = minR; r <= maxR; r++) {
+          const s2 = prevSum + r;
+          dist[s2] = (dist[s2] || 0) + prevCount;
+        }
+      }
+    }
+    sumDistCache[n] = dist;
+    return dist;
+  }
+
+  function killProbForN(n, A, B, bossHP) {
+    const minSum = 217 * n;
+    const maxSum = 255 * n;
+
+    if (A <= 0) {
+      const dmg = A * minSum + B;
+      return dmg >= bossHP ? 1 : 0;
+    }
+
+    const thresholdR = Math.ceil((bossHP - B) / A);
+    if (thresholdR <= minSum) return 1;
+    if (thresholdR > maxSum) return 0;
+
+    const dist = getSumDist(n);
+    let favorable = 0;
+    for (let s = thresholdR; s <= maxSum; s++) {
+      const c = dist[s];
+      if (c) favorable += c;
+    }
+    const totalComb = Math.pow(39, n);
+    return favorable / totalComb;
+  }
+
+  /* --------- 击杀率计算：连击 / 非连击 --------- */
+  function computeKillProbability(model) {
+    const bossHP = model.bossHP;
+    if (isNaN(bossHP) || bossHP <= 0) {
+      return { prob: null, text: '-', mode: 'none' };
+    }
+    const A = model.A;
+    const B = model.B;
+    const nMin = model.nMin;
+    const nMax = model.nMax;
+    const isCombo = getChecked('m2b_isCombo');
+
+    // A<=0：伤害不随随机因子变化，直接看最小伤害即可
+    if (A <= 0) {
+      const dmg = model.minDmg;
+      const prob0 = dmg >= bossHP ? 1 : 0;
+      return { prob: prob0, text: (prob0 * 100).toFixed(1) + '%', mode: isCombo ? 'combo-classic' : 'exact' };
+    }
+
+    if (isCombo) {
+      // 连击：认为总伤害在 [minDmg, maxDmg] 间等可能取值
+      const minD = model.minDmg;
+      const maxD = model.maxDmg;
+      let prob;
+      if (bossHP <= minD) {
+        prob = 1;
+      } else if (bossHP > maxD) {
+        prob = 0;
+      } else {
+        // 离散均匀：大约为 可击杀取值个数 / 总取值个数
+        const favorable = maxD - bossHP + 1;
+        const total = maxD - minD + 1;
+        prob = favorable / total;
+      }
+      return {
+        prob: prob,
+        text: (prob * 100).toFixed(1) + '%',
+        mode: 'combo-classic'
+      };
+    } else {
+      // 非连击：保持原来的精确枚举
+      let sumProb = 0;
+      const countN = nMax - nMin + 1;
+      for (let n = nMin; n <= nMax; n++) {
+        sumProb += killProbForN(n, A, B, bossHP);
+      }
+      const prob = sumProb / countN;
+      return {
+        prob: prob,
+        text: (prob * 100).toFixed(1) + '%',
+        mode: 'exact'
+      };
+    }
+  }
+
+  /* 裸伤模式：只输入 BOSS 进攻种族值（且我方面板攻击为空） */
+  function runNakedMode() {
+    const raceStr = document.getElementById('b2m_race').value.trim();
+    const race = parseFloat(raceStr);
+
+    const atkMulti = getVal('b2m_atkMulti');
+    const enhanceLv = getVal('b2m_enhanceLv');
+    const power = getVal('b2m_power');
+    const restraint = getVal('b2m_restraint') || 1;
+    const sameType = getChecked('b2m_sameTypeCheck') ? 1.5 : 1;
+
+    const defStr = document.getElementById('b2m_defense').value.trim();
+    if (defStr === '' || isNaN(parseFloat(defStr)) || parseFloat(defStr) <= 0) {
+      alert('【卡裸伤模式】请输入有效的防守方防御（> 0）');
+      return;
+    }
+    const defense = parseFloat(defStr);
+
+    const critResist = getVal('b2m_critResist');
+    if (critResist < 0 || critResist > 0.35) {
+      alert('【卡裸伤模式】暴击抗性仅允许 0 ~ 0.35 之间的数值');
+      return;
+    }
+
+    const fixedResist = getVal('b2m_fixedResist');
+    if (fixedResist < 0 || fixedResist > 0.35) {
+      alert('【卡裸伤模式】固伤抗性仅允许 0 ~ 0.35 之间的数值');
+      return;
+    }
+
+    const generalResist = getVal('b2m_generalResist');
+    if (generalResist < 0 || generalResist >= 1) {
+      alert('【卡裸伤模式】通用减伤系数建议填写在 0 ~ 1 之间（减伤超过1会重算）');
+      return;
+    }
+
+    const otherResist = getVal('b2m_otherResist');
+    const rawFixedDmg = getVal('b2m_fixedDmg');
+    const lockCrit = getChecked('b2m_lockCrit');
+    const jianying = getChecked('b2m_jianyingCheckbox');
+
+    const shieldVal = getVal('b2m_shieldVal');
+    const barrierVal = getVal('b2m_barrierVal');
+
+    const defStage = parseInt(document.getElementById('b2m_defStageVal').value, 10) || 0;
+
+    const goldFire = getChecked('b2m_goldFireCheckbox') ? 0.25 : 0;
+    const smallGoldFire = getChecked('b2m_smallGoldFireCheckbox') ? 0.2 : 0;
+    const pearl = getChecked('b2m_pearlCheckbox') ? 0.25 : 0;
+    const immortal = getChecked('b2m_immortalCheckbox') ? 0.25 : 0;
+
+    // ★ 套装红伤减伤（卡裸伤用的是“最大暴击”口径，所以用 crit 版本）
+    const suitValue = getCurrentSuitValue();
+    let suitRedCrit = 0;
+    if (suitValue === '耀世') suitRedCrit = 0.15;
+    else if (suitValue === '天人套') suitRedCrit = 0.20;
+
+    const baseAtk = race * 2 + 29;
+    const panelAtk = Math.floor(baseAtk * atkMulti);
+    const actualAtk = Math.floor(panelAtk * (2 + enhanceLv) / 2);
+
+    let defFactor;
+    if (defStage >= 0) {
+      defFactor = (2 + defStage) / 2;
+    } else {
+      defFactor = 2 / (2 - defStage);
+    }
+    const realDef = Math.floor(defense * defFactor);
+
+    const baseDmg = 0.84 * actualAtk * power / realDef + 2;
+
+    // 最小裸伤
+    let minDmgRaw = baseDmg * restraint * sameType * 217 / 255;
+    if (lockCrit) minDmgRaw *= 2 * (1 - critResist);
+    const minDmg = Math.ceil(minDmgRaw);
+
+
+    let maxRedDmg = baseDmg * restraint * sameType * 2 * (1 - critResist);
+    maxRedDmg *= (1 - goldFire - smallGoldFire) *
+                 (1 - pearl) *
+                 (1 - immortal) *
+                 Math.max(0, (1 - suitRedCrit - generalResist)) *
+                 (1 - otherResist);
+
+    if (jianying) maxRedDmg *= 0.9;
+
+    let finalRed = maxRedDmg - shieldVal;
+    if (finalRed < 0) finalRed = 0;
+
+    let effFixed = rawFixedDmg * (1 - fixedResist);
+    let finalPink = effFixed - barrierVal;
+    if (finalPink < 0) finalPink = 0;
+
+    const totalMaxDmg = Math.ceil(finalRed + finalPink);
+
+    const minHP = totalMaxDmg + 1;
+    const maxHP = minDmg;
+
+    const resultsBox = document.getElementById('resultsBox');
+    let html = '';
+    html += `<div class="safe-hp-highlight">安全体力范围：${minHP} ~ ${maxHP}</div>`;
+    html += `<div style="font-size:12px;color:#666;">若安全体力范围前大后小（即下限 &gt; 上限），说明该配置无法卡裸伤，需要增加减伤条件！！！</div>`;
+    html += `<div style="font-size:12px;color:#666;margin-top:4px;">当前为 <strong>裸伤计算模式</strong></div>`;
+    resultsBox.innerHTML = html;
+  }
+
+  /* 先手强攻模式：只输入我方面板攻击（BOSS 进攻种族值留空） */
+  function runFirstHandMode() {
+    const model = buildMeToBossModel();
+    if (!model.ok) return;
+
+    const isCombo = getChecked('m2b_isCombo');
+    const resultsBox = document.getElementById('resultsBox');
+    let html = '';
+
+    html += `<div style="font-size:14px;">先手强攻模式：我方对 BOSS 的伤害范围为
+             <span class="highlight-danger">${model.minDmg} ~ ${model.maxDmg}</span>。</div>`;
+
+    const kp = computeKillProbability(model);
+    if (kp.prob !== null) {
+      if (isCombo) {
+        html += `<div style="font-size:14px;margin-top:4px;">
+                 当前为<strong>连击技能</strong>，击杀率按古典概型估算：
+                 认为一轮总伤害在区间 [${model.minDmg}, ${model.maxDmg}] 上近似等概率分布，                 
+                 理论通关率约为 <span class="highlight-danger">${kp.text}</span>。
+                 </div>`;
+      } else {
+        html += `<div style="font-size:14px;margin-top:4px;">
+                 随机因子取 217~255 共 39 种等可能情形，
+                 精确枚举所有随机因子的取值后，
+                 理论通关率约为 <span class="highlight-danger">${kp.text}</span>。
+                 </div>`;
+      }
+    } else {
+      html += `<div style="font-size:13px;margin-top:4px;">未填写 BOSS 生命值，无法计算通关率，仅展示伤害范围。</div>`;
+    }
+
+    html += `<div style="font-size:12px;color:#666;margin-top:4px;">
+             说明：<br>
+             · 非连击时：以 39 个随机因子（217~255）为等可能情形，精确枚举伤害分布；<br>
+             · 连击时：用古典概型近似——把总伤害视为在伤害区间上等概率取值。
+             </div>`;
+
+    resultsBox.innerHTML = html;
+  }
+
+  /* 后手强攻模式：BOSS 进攻种族值 + 我方面板攻击同时填写 */
+  function runFullMode() {
+    const goldFireChecked = getChecked('b2m_goldFireCheckbox');
+    const smallGoldFireChecked = getChecked('b2m_smallGoldFireCheckbox');
+    const atkStageVal = parseInt(document.getElementById('m2b_atkStageVal').value, 10) || 0;
+    if ((goldFireChecked || smallGoldFireChecked) && atkStageVal >= 2) {
+      const ok = confirm('强化等级大于1，确定不是同时选择金火和绿火效果吗？');
+      if (!ok) return;
+    }
+
+    const bossResult = calcBossToMeDamageBoth();
+    if (!bossResult.ok) return;
+
+    const model = buildMeToBossModel();
+    if (!model.ok) return;
+
+    const myHPStr = document.getElementById('b2m_myHP').value.trim();
+    if (myHPStr === '' || isNaN(parseFloat(myHPStr)) || parseFloat(myHPStr) <= 0) {
+      alert('【左侧】请输入有效的我方当前体力值（> 0），用于“后手强攻模式”吃伤判断');
+      return;
+    }
+    const myHP = parseFloat(myHPStr);
+
+    const bossNoCritRed   = bossResult.noCrit.red;
+    const bossNoCritPink  = bossResult.noCrit.pink;
+    const bossNoCritTotal = bossResult.noCrit.total;
+
+    const bossCritRed   = bossResult.crit.red;
+    const bossCritPink  = bossResult.crit.pink;
+    const bossCritTotal = bossResult.crit.total;
+
+    const canTankNoCrit = myHP > bossNoCritTotal;
+    const canTankCrit   = myHP > bossCritTotal;
+
+    const myMin  = model.minDmg;
+    const myMax  = model.maxDmg;
+
+    const kp = computeKillProbability(model);
+    const isCombo = getChecked('m2b_isCombo');
+
+    let tankSummary = '';
+    if (!canTankNoCrit && !canTankCrit) {
+      tankSummary = `无论 BOSS 是否暴击，我方当前体力 <strong>${myHP}</strong> 都无法承受一次攻击。`;
+    } else if (canTankNoCrit && !canTankCrit) {
+      tankSummary = `在BOSS不暴击时，我方可以扛住一次攻击；但若BOSS暴击则会暴毙。`;
+    } else {
+      tankSummary = `我方当前体力 <strong>${myHP}</strong> 可以稳定扛下一次攻击。`;
+    }
+
+    const resultsBox = document.getElementById('resultsBox');
+    let html = '';
+
+    // ① 吃伤结论
+    html += `<div style="font-size:14px;margin-bottom:4px;">${tankSummary}</div>`;
+
+    // ② 详细列出 暴击 / 不暴击 被护盾护罩减免后的红伤 / 粉伤 / 总伤害
+    html += `<div style="font-size:13px;margin-top:4px;line-height:1.6;">
+             BOSS <strong>不暴击</strong> 时：红伤 <strong>${bossNoCritRed}</strong>，
+             粉伤 <strong>${bossNoCritPink}</strong>，
+             总伤害 <strong>${bossNoCritTotal}</strong>；<br>
+             BOSS <strong>暴击</strong> 时：红伤 <strong>${bossCritRed}</strong>，
+             粉伤 <strong>${bossCritPink}</strong>，
+             总伤害 <strong>${bossCritTotal}</strong>。</div>`;
+
+    // ③ 我方对 BOSS 的伤害范围
+    html += `<div style="font-size:14px;margin-top:6px;">我方对 BOSS 的伤害范围：
+             <span class="highlight-danger">${myMin} ~ ${myMax}</span>。</div>`;
+
+    // ④ 击杀概率 / 通关率
+    if (kp.prob !== null) {
+      if (isCombo) {
+        html += `<div style="font-size:13px;margin-top:4px;">
+                 当前为<strong>连击技能</strong>，击杀率按“古典概型”估算：
+                 认为一轮总伤害在区间 [${model.minDmg}, ${model.maxDmg}] 上近似等概率分布，                 
+                 则反打一轮的理论击杀概率约为
+                 <span class="highlight-danger">${kp.text}</span>。
+                 </div>`;
+      } else {
+        html += `<div style="font-size:13px;margin-top:4px;">
+                 非连击时，以随机因子 217~255 共 39 种等可能取值为样本空间，                 
+                 反打一轮的理论击杀概率约为
+                 <span class="highlight-danger">${kp.text}</span>。
+                 </div>`;
+      }
+    } else {
+      html += `<div style="font-size:13px;margin-top:4px;">未填写 BOSS 生命值，无法给出通关率，仅展示输出范围与吃伤情况。</div>`;
+    }
+
+    html += `<div style="font-size:12px;color:#666;margin-top:4px;">
+             当前为 <strong>后手强攻模式</strong>：同时考虑承受一击伤害和反打一次的理论击杀概率。<br>
+             · 非连击：按 39 个随机因子精确枚举；<br>
+             · 连击：按古典概型近似，认为总伤害在[最小伤害, 最大伤害]之间等概率取值。
+             </div>`;
+
+    resultsBox.innerHTML = html;
+  }
+
+  /* 总入口：根据输入自动判断三种模式 */
+  function calculateAll() {
+  const resultsBox = document.getElementById('resultsBox');
+  resultsBox.innerHTML = ''; // 每次计算前清空结论栏
+
+  const raceStr = document.getElementById('b2m_race').value.trim();
+  const atkPanelStr = document.getElementById('m2b_atkPanel').value.trim();
+
+  const hasBossAtk = (raceStr !== '' && !isNaN(parseFloat(raceStr)) && parseFloat(raceStr) > 0);
+  const hasMyAtk   = (atkPanelStr !== '' && !isNaN(parseFloat(atkPanelStr)) && parseFloat(atkPanelStr) > 0);
+
+  // ★ 强攻 + 减伤珠提示拦截（先手强攻 / 后手强攻 两种模式都拦）
+  const pearlChecked = getChecked('b2m_pearlCheckbox');
+  if (hasMyAtk && pearlChecked) {
+    alert('强攻不建议用减伤珠，减伤效果暂未搞懂，但不是1/4，请去掉重新计算！');
+    return;
+  }
+
+  // ★★★ 后手强攻 + 漆黑 必须护盾 ≥ 300 ★★★
+  if (hasBossAtk && hasMyAtk) {           // 说明现在是“后手强攻模式”
+    const suitValue = getCurrentSuitValue();
+    if (suitValue === '漆黑') {           // 勾选了漆黑套装
+      const shieldVal = getVal('b2m_shieldVal');
+      if (shieldVal < 300) {              // 护盾不足 300，提示并返回
+        alert('后手强攻模式下，若勾选漆黑套装，护盾需是300，请检查护盾后再试！');
+        return;
+      }
+    }
+  }
+
+  if (!hasBossAtk && !hasMyAtk) {
+    alert('请至少填写 BOSS 进攻种族值 或 我方面板攻击，用于计算。');
+    return;
+  }
+
+  if (hasBossAtk && !hasMyAtk) {
+    // 裸伤计算模式
+    runNakedMode();
+  } else if (!hasBossAtk && hasMyAtk) {
+    // 先手强攻模式
+    runFirstHandMode();
+  } else {
+    // 后手强攻模式
+    runFullMode();
+  }
+}
+
+
+  // 重置 BOSS 打我方模块
+  function resetBossModule() {
+    const bossCard = document.querySelector('.column-card.boss');
+    if (!bossCard) return;
+
+    const inputs = bossCard.querySelectorAll('input');
+    inputs.forEach(el => {
+      if (el.type === 'checkbox') {
+        el.checked = el.defaultChecked;
+      } else {
+        el.value = el.defaultValue;
+      }
+    });
+
+    // 重置下拉显示文字
+    const atkEnhDisp = document.getElementById('b2m_atkEnhanceDisplay');
+    if (atkEnhDisp) atkEnhDisp.textContent = '0';
+    const defStageDisp = document.getElementById('b2m_defStageDisplay');
+    if (defStageDisp) defStageDisp.textContent = '0';
+
+    // 清空结论
+    const resultsBox = document.getElementById('resultsBox');
+    if (resultsBox) resultsBox.innerHTML = '';
+  }
+
+  // 重置 我方打 BOSS 模块
+  function resetSelfModule() {
+    const selfCard = document.querySelector('.column-card.self');
+    if (!selfCard) return;
+
+    const inputs = selfCard.querySelectorAll('input');
+    inputs.forEach(el => {
+      if (el.type === 'checkbox') {
+        el.checked = el.defaultChecked;
+      } else {
+        el.value = el.defaultValue;
+      }
+    });
+
+    // 重置下拉显示文字
+    const atkStageDisp = document.getElementById('m2b_atkStageDisplay');
+    if (atkStageDisp) atkStageDisp.textContent = '0';
+    const traitDisp = document.getElementById('m2b_traitDisplay');
+    if (traitDisp) traitDisp.textContent = '无';
+    const attrTraitDisp = document.getElementById('m2b_attrTraitDisplay');
+    if (attrTraitDisp) attrTraitDisp.textContent = '无';
+    const gemDisp = document.getElementById('m2b_gemDisplay');
+    if (gemDisp) gemDisp.textContent = '无';
+    const panDisp = document.getElementById('m2b_panDisplay');
+    if (panDisp) panDisp.textContent = '0';
+    const fixedTypeDisp = document.getElementById('m2b_fixedTypeDisplay');
+    if (fixedTypeDisp) fixedTypeDisp.textContent = '无';
+
+    // 保证一些动态 UI 状态与当前值一致
+    syncSelfDynamicUI();
+
+    // 清空结论
+    const resultsBox = document.getElementById('resultsBox');
+    if (resultsBox) resultsBox.innerHTML = '';
+  }
+
+  document.getElementById('calcBtn').addEventListener('click', calculateAll);
+  document.getElementById('resetBossModule').addEventListener('click', resetBossModule);
+  document.getElementById('resetSelfModule').addEventListener('click', resetSelfModule);
+
+  window.onload = () => {
+    const raceInput = document.getElementById('b2m_race');
+    if (raceInput) raceInput.focus();
+  };
+</script>
+</body>
 </html>
